@@ -29,6 +29,21 @@ let quotes = [
     // Push the new quote to the array
     quotes.push({ text: newQuote, category: quoteCategory });
   
+    //creation of new DOM elements for quotes 
+    const quoteDiv = document.createElement('div');
+    const quoteParagraph = document.createElement('p');
+    const quoteCategoryElement = document.createElement('p');
+
+    //setting the content of the new elements
+    quoteParagraph.innerHTML =`<strong>Quote:</strong> ${newQuote}`;
+    quoteCategoryElement.innerHTML = `<strong>Category:</strong> ${quoteCategory}`;
+
+    //appending the new elements to the div
+    quoteDiv.appendChild(quoteParagraph);
+    quoteDiv.appendChild(quoteCategoryElement);
+
+    //make the quotes to Display 
+    document.getElementById('quoteDisplay').appendChild(quoteDiv);
     // Clear the input fields
     document.getElementById('newQuoteText').value = '';
     document.getElementById('newQuoteCategory').value = '';
