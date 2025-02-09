@@ -180,6 +180,21 @@ async function syncQuotesWithServer() {
   }
 }
 
+// Function to post new quotes to the server
+async function postQuoteToServer(quote) {
+  try {
+    await fetch('https://jsonplaceholder.typicode.com/posts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(quote)
+    });
+  } catch (error) {
+    console.error('Error posting quote to server:', error);
+  }
+}
+
 // Initialize the application when the document is ready
 document.addEventListener('DOMContentLoaded', () => {
   // Add event listener for showing a random quote
