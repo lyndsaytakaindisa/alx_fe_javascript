@@ -17,7 +17,7 @@ function showRandomQuote() {
     `<p><strong>Quote:</strong> ${randQuote.text}</p>
      <p><strong>Category:</strong> ${randQuote.category}</p>`;
 //saving the last viewed quote to session storage
-sessionStorage.setItem('lastViewedQuote' ,JSON.stringify(randQuote));
+  sessionStorage.setItem('lastViewedQuote' ,JSON.stringify(randQuote));
 }
 
 // Function to add new quotes
@@ -36,6 +36,8 @@ function createAddQuoteForm() {
 
   //saving updated array to local strorage
   saveQuotes();
+  // Update the category filter dropdown
+  populateCategories();
   //creation of new DOM elements for quotes
   const quoteDiv = document.createElement('div');
   const quoteParagraph = document.createElement('p');
@@ -57,6 +59,43 @@ function createAddQuoteForm() {
 
   // Inform the user
   alert('Quote added successfully!');
+
+  displayAllQuotes();
+}
+
+// Function to populate categories dynamically
+function populateCategories() {
+  const categoryFilter = document.getElementById('categoryFilter');
+  const categories = new Set(quotes.map(quote => quote.category)); // Unique categories
+  categoryFilter.innerHTML = '<option value="all">All Categories</option>'; // Reset dropdown to initial state
+
+  categories.forEach(category => {
+    const option = document.createElement('option');
+    option.value = category;
+    option.textContent = category;
+    categoryFilter.appendChild(option);
+  });
+
+  // If a category was previously selected, restore the selection
+  const lastSelectedCategory = localStorage.getItem('lastSelectedCategory');
+  if (lastSelectedCategory) {
+    categoryFilter.value = lastSelectedCategory;
+    filterQuotes(); // Apply the filter
+  }
+}
+
+// Function to filter and display quotes based on the selected category
+function filterQuotes() {
+  const selectedCategory = document.getElementById('categoryFilter').value;
+
+  // Save the selected category to localStorage for persistence
+  localStorage.setItem('lastSelectedCategory', selectedCategory);
+
+  const filteredQuotes = selectedCategory === 'all'
+    ? quotes
+    : quotes.filter(quote => quote.category === selectedCategory);
+
+  displayQuotes(filteredQuotes);
 }
 
 //function to load all the quotes when initialized
@@ -113,7 +152,8 @@ function importFromJsonFile(event) {
 document.addEventListener('DOMContentLoaded', () => {
   // Add event listener for showing a random quote
   document.getElementById('newQuote').addEventListener('click', showRandomQuote);
- 
+  
+  populateCategories();
   displayAllQuotes();
   LastViewed();
 });

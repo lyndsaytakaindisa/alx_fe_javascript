@@ -18,6 +18,12 @@
 
     <button onclick="exportQuotes">Export Quotes</button>
     <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
+    <!--Introduce a dropdown menu or a set of buttons that allow the user to select a category for filtering quotes-->
+    <select id="categoryFilter" onchange="filterQuotes()">
+      <option value="all">All Categories</option>
+      <!-- Dynamically populated categories -->
+       
+    </select>
     
     <script src="script.js"></script>
 </body>
