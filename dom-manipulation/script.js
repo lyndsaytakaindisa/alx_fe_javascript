@@ -4,10 +4,12 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
   { text: "Follow your dreams ....unless they involve work", category: "Inspirational" },
   { text: "Whatever you do , give 100% unless you are donating blood !!", category: "Motivational" },
 ];
-//function to save the quotes to localstorage
-function saveQuotes(){
-  localStorage.setItem('quotes',JSON.stringify(quotes));
+
+// Function to save the quotes to local storage
+function saveQuotes() {
+  localStorage.setItem('quotes', JSON.stringify(quotes));
 }
+
 // Function to display a random quote
 function showRandomQuote() {
   const randNumber = Math.floor(Math.random() * quotes.length);
@@ -16,8 +18,8 @@ function showRandomQuote() {
   document.getElementById("quoteDisplay").innerHTML =
     `<p><strong>Quote:</strong> ${randQuote.text}</p>
      <p><strong>Category:</strong> ${randQuote.category}</p>`;
-//saving the last viewed quote to session storage
-  sessionStorage.setItem('lastViewedQuote' ,JSON.stringify(randQuote));
+  // Saving the last viewed quote to session storage
+  sessionStorage.setItem('lastViewedQuote', JSON.stringify(randQuote));
 }
 
 // Function to add new quotes
@@ -34,24 +36,24 @@ function createAddQuoteForm() {
   // Push the new quote to the array
   quotes.push({ text: newQuote, category: quoteCategory });
 
-  //saving updated array to local strorage
+  // Saving updated array to local storage
   saveQuotes();
   // Update the category filter dropdown
   populateCategories();
-  //creation of new DOM elements for quotes
+  // Creation of new DOM elements for quotes
   const quoteDiv = document.createElement('div');
   const quoteParagraph = document.createElement('p');
   const quoteCategoryElement = document.createElement('p');
 
-  //setting the content of the new elements
-  quoteParagraph.innerHTML =`<strong>Quote:</strong> ${newQuote}`;
+  // Setting the content of the new elements
+  quoteParagraph.innerHTML = `<strong>Quote:</strong> ${newQuote}`;
   quoteCategoryElement.innerHTML = `<strong>Category:</strong> ${quoteCategory}`;
 
-  //appending the new elements to the div
+  // Appending the new elements to the div
   quoteDiv.appendChild(quoteParagraph);
   quoteDiv.appendChild(quoteCategoryElement);
 
-  //make the quotes to Display
+  // Make the quotes to display
   document.getElementById('quoteDisplay').appendChild(quoteDiv);
   // Clear the input fields
   document.getElementById('newQuoteText').value = '';
@@ -88,7 +90,7 @@ function populateCategories() {
 function filterQuotes() {
   const selectedCategory = document.getElementById('categoryFilter').value;
 
-  // Save the selected category to localStorage for persistence
+  // Save the selected category to local storage for persistence
   localStorage.setItem('lastSelectedCategory', selectedCategory);
 
   const filteredQuotes = selectedCategory === 'all'
@@ -98,31 +100,31 @@ function filterQuotes() {
   displayQuotes(filteredQuotes);
 }
 
-//function to load all the quotes when initialized
-function displayAllQuotes(){
+// Function to display all quotes
+function displayAllQuotes() {
   const quoteDisplay = document.getElementById("quoteDisplay");
   quoteDisplay.innerHTML = ""; // Clear previous content
 
   quotes.forEach(quote => {
-      const quoteDiv = document.createElement('div');
-      quoteDiv.innerHTML = `<p><strong>Quote:</strong> ${quote.text}</p>
-                            <p><strong>Category:</strong> ${quote.category}</p>`;
-      quoteDisplay.appendChild(quoteDiv);
+    const quoteDiv = document.createElement('div');
+    quoteDiv.innerHTML = `<p><strong>Quote:</strong> ${quote.text}</p>
+                          <p><strong>Category:</strong> ${quote.category}</p>`;
+    quoteDisplay.appendChild(quoteDiv);
   });
 }
 
-//function to display the last viewed quote by user
-function LastViewed(){
-  const lastviewed = JSON.parse(sessionStorage.getItem('lastViewedQuote'));
-  if(lastviewed){
+// Function to display the last viewed quote by user
+function LastViewed() {
+  const lastViewed = JSON.parse(sessionStorage.getItem('lastViewedQuote'));
+  if (lastViewed) {
     document.getElementById("quoteDisplay").innerHTML =
-          `<p><strong>Quote:</strong> ${lastviewed.text}</p>
-           <p><strong>Category:</strong> ${lastviewed.category}</p>`
+      `<p><strong>Quote:</strong> ${lastViewed.text}</p>
+       <p><strong>Category:</strong> ${lastViewed.category}</p>`;
   }
 }
 
-//function to export quotes to a JSON file
-function exportQuotes(){
+// Function to export quotes to a JSON file
+function exportQuotes() {
   const quotesBlob = new Blob([JSON.stringify(quotes, null, 2)], { type: 'application/json' });
   const quotesUrl = URL.createObjectURL(quotesBlob);
   const downloadLink = document.createElement('a');
@@ -133,10 +135,9 @@ function exportQuotes(){
 
   // Inform the user
   alert('Quotes exported successfully!');
-
 }
 
-//function to allow users to upload a JSON file containing quotes. Read the file and update the quotes array and local storage accordingly.
+// Function to allow users to upload a JSON file containing quotes
 function importFromJsonFile(event) {
   const fileReader = new FileReader();
   fileReader.onload = function(event) {
@@ -148,6 +149,26 @@ function importFromJsonFile(event) {
   fileReader.readAsText(event.target.files[0]);
 }
 
+// Function to sync quotes with the server
+async function syncQuotesWithServer() {
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+    const serverQuotes = await response.json();
+
+    // Merge server quotes with local quotes
+    const mergedQuotes = [...quotes, ...serverQuotes];
+    const uniqueQuotes = Array.from(new Set(mergedQuotes.map(quote => quote.text)))
+      .map(text => mergedQuotes.find(quote => quote.text === text));
+
+    quotes = uniqueQuotes;
+    saveQuotes();
+    displayAllQuotes();
+    alert('Quotes synced with server successfully!');
+  } catch (error) {
+    console.error('Error syncing quotes with server:', error);
+  }
+}
+
 // Initialize the application when the document is ready
 document.addEventListener('DOMContentLoaded', () => {
   // Add event listener for showing a random quote
@@ -156,4 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
   populateCategories();
   displayAllQuotes();
   LastViewed();
+
+  // Sync quotes with the server periodically
+  setInterval(syncQuotesWithServer, 60000); // Sync every 60 seconds
 });
